@@ -2,6 +2,7 @@ package me.coopersully.robodog.events.student;
 
 import me.coopersully.Commons;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -29,6 +30,11 @@ public class AcceptStudent extends ListenerAdapter {
 
         // Ensure that the event is occurring on the Accept Button
         if (!buttonId.contains("ACCEPT_STUDENT_")) return;
+
+        if (event.getMember().hasPermission(Permission.MANAGE_PERMISSIONS)) {
+            event.reply(":question: You don't have permission to do that.").queue();
+            return;
+        }
 
         // Retrieve the requesting user's ID from the button
         buttonId = buttonId.substring(15); // ACCEPT_STUDENT_ has 15 characters

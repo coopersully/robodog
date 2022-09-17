@@ -2,6 +2,7 @@ package me.coopersully.robodog.events.guest;
 
 import me.coopersully.Commons;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
@@ -34,6 +35,11 @@ public class AcceptGuest extends ListenerAdapter {
         // Retrieve the requesting user's ID from the button
         buttonId = buttonId.substring(13); // ACCEPT_GUEST_ has 13 characters
 
+        if (event.getMember().hasPermission(Permission.MANAGE_PERMISSIONS)) {
+            event.reply(":question: You don't have permission to do that.").queue();
+            return;
+        }
+        
         /* Create a Guild Member object from the retrieved ID.
         If the object is null, the user left the guild/doesn't exist. */
         Member member = guild.getMemberById(buttonId);
