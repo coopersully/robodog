@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.awt.*;
+import java.sql.SQLException;
 import java.util.Arrays;
 
 public class AcceptGuest extends ListenerAdapter {
@@ -63,18 +64,56 @@ public class AcceptGuest extends ListenerAdapter {
             return;
         }
 
-        // Get the guest role by its codename
-        Role guestRole = Commons.getRoleByName(event, "guest");
-        if (guestRole == null) return;
+        // Get server roles
+        var resultSet = SQLiteManager.getGuildByID(guild.getId());
 
-        // Get the unverified role by its codename
-        Role unverifiedRole = Commons.getRoleByName(event, "quarantine");
-        if (unverifiedRole == null) return;
+        // Retrieve the verified role and grant it to the user
+        String verifiedID;
+        try {
+            verifiedID = resultSet.getString("r_verified");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
 
-        // Grant/revoke the given roles
-        guild.addRoleToMember(member, guestRole).queue();
-        guild.removeRoleFromMember(member, unverifiedRole).queue();
+        if (verifiedID != null) {
+            Role verifiedRole = guild.getRoleById(verifiedID);
+            if (verifiedRole != null) guild.addRoleToMember(member, verifiedRole).queue();
+        }
 
+        // Retrieve the guest role and grant it to the user
+        String guestID;
+        try {
+           guestID = resultSet.getString("r_guest");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        if (guestID == null) {
+            Commons.sendOrEdit(event, ":question: A guest role was never assigned; please assign one with ``/setpos guest`` before accepting this user.");
+            return;
+        } else {
+            Role guestRole = guild.getRoleById(guestID);
+            if (guestRole == null) {
+                Commons.sendOrEdit(event, ":question: The assigned guest role no longer exists; please assign a new one with ``/setpos guest`` before accepting this user.");
+                return;
+            }
+            guild.addRoleToMember(member, guestRole).queue();
+        }
+
+        // Retrieve the unverified role and revoke it from the user
+        String unverifiedID;
+        try {
+            unverifiedID = resultSet.getString("r_unverified");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        if (unverifiedID != null) {
+            Role unverifiedRole = guild.getRoleById(unverifiedID);
+            if (unverifiedRole != null) guild.removeRoleFromMember(member, unverifiedRole).queue();
+        }
+
+        // Notify the admin that it was successful
         Commons.sendOrEdit(event, ":white_check_mark: Successfully granted access to " + member.getAsMention());
 
         /* Alert the user that they've been verified in

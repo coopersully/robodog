@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.awt.*;
+import java.sql.SQLException;
 import java.util.Arrays;
 
 public class AcceptStudent extends ListenerAdapter {
@@ -64,17 +65,54 @@ public class AcceptStudent extends ListenerAdapter {
             return;
         }
 
-        // Get the verified role by its codename
-        Role verifiedRole = Commons.getRoleByName(event, "verified");
-        if (verifiedRole == null) return;
+        // Get server roles
+        var resultSet = SQLiteManager.getGuildByID(guild.getId());
 
-        // Get the unverified role by its codename
-        Role unverifiedRole = Commons.getRoleByName(event, "quarantine");
-        if (unverifiedRole == null) return;
+        // Retrieve the verified role and grant it to the user
+        String verifiedID;
+        try {
+            verifiedID = resultSet.getString("r_verified");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
 
-        // Grant/revoke the given roles
-        guild.addRoleToMember(member, verifiedRole).queue();
-        guild.removeRoleFromMember(member, unverifiedRole).queue();
+        if (verifiedID != null) {
+            Role verifiedRole = guild.getRoleById(verifiedID);
+            if (verifiedRole != null) guild.addRoleToMember(member, verifiedRole).queue();
+        }
+
+        // Retrieve the guest role and grant it to the user
+        String studentID;
+        try {
+            studentID = resultSet.getString("r_student");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        if (studentID == null) {
+            Commons.sendOrEdit(event, ":question: A student role was never assigned; please assign one with ``/setpos student`` before accepting this user.");
+            return;
+        } else {
+            Role studentRole = guild.getRoleById(studentID);
+            if (studentRole == null) {
+                Commons.sendOrEdit(event, ":question: The assigned student role no longer exists; please assign a new one with ``/setpos student`` before accepting this user.");
+                return;
+            }
+            guild.addRoleToMember(member, studentRole).queue();
+        }
+
+        // Retrieve the unverified role and revoke it from the user
+        String unverifiedID;
+        try {
+            unverifiedID = resultSet.getString("r_unverified");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        if (unverifiedID != null) {
+            Role unverifiedRole = guild.getRoleById(unverifiedID);
+            if (unverifiedRole != null) guild.removeRoleFromMember(member, unverifiedRole).queue();
+        }
 
         Commons.sendOrEdit(event, ":white_check_mark: Successfully verified " + member.getAsMention());
 
