@@ -20,6 +20,8 @@ public class GuestFormSend extends ListenerAdapter {
         if (!event.isFromGuild()) return;
         if (!event.getModalId().contains("guest")) return;
 
+        event.deferReply().setEphemeral(true).queue();
+
         Guild guild = event.getGuild();
         assert guild != null;
 
@@ -33,9 +35,8 @@ public class GuestFormSend extends ListenerAdapter {
                 .setFooter("User ID: " + user.getId())
                 .setTimestamp(Instant.now());
 
-        Button accept = Button.success("ACCEPT_GUEST_" + user.getId(), "Accept Request");
-        Button deny = Button.danger("DENY_" + user.getId(), "Deny Request");
-
+        String name = "";
+        String business = "";
         for (ModalMapping entry : event.getValues()) {
 
             String id = entry.getId();
@@ -45,8 +46,14 @@ public class GuestFormSend extends ListenerAdapter {
             if (value.isEmpty()) continue;
 
             switch (id) {
-                case "name" -> key = "Full Name";
-                case "org" -> key = "Association";
+                case "name" -> {
+                    key = "Full Name";
+                    name = value;
+                }
+                case "org" -> {
+                    key = "Association";
+                    business = value;
+                }
                 case "purpose" -> {
                     key = "What's the purpose of your visit?";
                     value = "```" + entry.getAsString() + "```";
@@ -55,6 +62,10 @@ public class GuestFormSend extends ListenerAdapter {
             }
             embedBuilder.addField(key, value, true);
         }
+
+        Button accept = Button.success("ACCEPT_GUEST_" + user.getId() + "_" + name + "_" + business, "Accept Request");
+        Button deny = Button.danger("DENY_" + user.getId(), "Deny Request");
+
 
         Commons.wooshModal(event, guild, embedBuilder, accept, deny);
 

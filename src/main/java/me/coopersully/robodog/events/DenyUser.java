@@ -1,5 +1,6 @@
 package me.coopersully.robodog.events;
 
+import me.coopersully.Commons;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.exceptions.HierarchyException;
@@ -29,6 +30,8 @@ public class DenyUser extends ListenerAdapter {
         // Ensure that the event is occurring on the Deny Button
         if (!buttonId.contains("DENY_")) return;
 
+        event.deferReply().setEphemeral(true).queue();
+
         // Retrieve the requesting user's ID from the button
         buttonId = buttonId.substring(5); // DENY_ has 5 characters
 
@@ -36,7 +39,7 @@ public class DenyUser extends ListenerAdapter {
         If the object is null, the user left the guild/doesn't exist. */
         Member member = guild.getMemberById(buttonId);
         if (member == null) {
-            event.reply(":question: It looks like that user no longer exists in this server.").queue();
+            Commons.sendOrEdit(event, ":question: It looks like that user no longer exists in this server.");
             return;
         }
 
@@ -44,14 +47,11 @@ public class DenyUser extends ListenerAdapter {
         try {
             member.kick("Denied verification by " + event.getUser().getAsTag()).queue();
         } catch (IllegalArgumentException | InsufficientPermissionException | HierarchyException e) {
-            event.reply(":question: I don't have permission to kick that user.").queue();
+            Commons.sendOrEdit(event, ":question: I don't have permission to kick that user.");
             return;
         }
 
-        event
-                .reply(":white_check_mark: Successfully removed " + member.getAsMention() + " from the server.")
-                .setEphemeral(true)
-                .queue();
+        Commons.sendOrEdit(event, ":white_check_mark: Successfully removed " + member.getAsMention() + " from the server.");
 
         /* Edit the original message to contain only one (1) disabled
         button that displays the action taken and the actor. */

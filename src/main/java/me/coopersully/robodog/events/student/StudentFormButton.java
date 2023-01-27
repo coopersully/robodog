@@ -25,6 +25,11 @@ public class StudentFormButton extends ListenerAdapter {
             .setRequiredRange(13, 33)
             .build();
 
+    private static final TextInput year = TextInput.create("year", "Graduation Year", TextInputStyle.SHORT)
+            .setPlaceholder("i.e. 2020")
+            .setRequiredRange(4, 4)
+            .build();
+
     private static final TextInput games = TextInput.create("games", "What games do you frequently play?", TextInputStyle.PARAGRAPH)
             .setPlaceholder("We'd love to get you connected with other members who play similar games.")
             .setRequired(false)
@@ -36,6 +41,7 @@ public class StudentFormButton extends ListenerAdapter {
                     ActionRow.of(name),
                     ActionRow.of(major),
                     ActionRow.of(email),
+                    ActionRow.of(year),
                     ActionRow.of(games)
             )
             .build();

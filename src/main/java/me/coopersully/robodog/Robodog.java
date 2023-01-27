@@ -1,20 +1,24 @@
 package me.coopersully.robodog;
 
-import me.coopersully.robodog.commands.CommandModal;
-import me.coopersully.robodog.commands.CommandVerify;
+import me.coopersully.robodog.commands.*;
+import me.coopersully.robodog.database.MemberAttendances;
+import me.coopersully.robodog.database.SQLiteManager;
+import me.coopersully.robodog.events.DenyUser;
+import me.coopersully.robodog.events.GenericButtonPressed;
 import me.coopersully.robodog.events.HearLizardReplyLizard;
+import me.coopersully.robodog.events.JoinGuild;
 import me.coopersully.robodog.events.guest.AcceptGuest;
 import me.coopersully.robodog.events.guest.GuestFormButton;
 import me.coopersully.robodog.events.guest.GuestFormSend;
 import me.coopersully.robodog.events.student.AcceptStudent;
-import me.coopersully.robodog.events.DenyUser;
 import me.coopersully.robodog.events.student.StudentFormButton;
 import me.coopersully.robodog.events.student.StudentFormSend;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.jetbrains.annotations.NotNull;
@@ -36,11 +40,7 @@ public class Robodog {
     }
 
     public static @NotNull JDA getBranch() {
-        Guild guild = jda.getGuildById(config.guildID);
-        if (guild == null) {
-            throw new RuntimeException("Guild could not be found; contact the developer.");
-        }
-        return guild.getJDA();
+        return getJda();
     }
 
 
@@ -52,6 +52,11 @@ public class Robodog {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        // Create database & connect
+        SQLiteManager.createNewDatabase();
+        SQLiteManager.connect();
+        SQLiteManager.ensureTablesExist();
 
         /* Login with the given application token and
         enable intents, set cache policies, etc. */
@@ -72,7 +77,18 @@ public class Robodog {
 
         // Register all event listeners
         jda.addEventListener(new CommandVerify());
+        jda.addEventListener(new CommandProfile());
+        jda.addEventListener(new CommandLookup());
         jda.addEventListener(new CommandModal());
+        jda.addEventListener(new CommandIrregularities());
+        jda.addEventListener(new CommandNotifyUnverified());
+        jda.addEventListener(new CommandPositions());
+        jda.addEventListener(new CommandSetPos());
+
+        jda.addEventListener(new MemberAttendances());
+        jda.addEventListener(new JoinGuild());
+
+        jda.addEventListener(new GenericButtonPressed());
 
         jda.addEventListener(new StudentFormButton());
         jda.addEventListener(new StudentFormSend());
@@ -99,7 +115,33 @@ public class Robodog {
 
         getBranch().updateCommands().queue();
         getBranch().upsertCommand("verify", "Verify your identity!").queue();
+        getBranch().upsertCommand("profile", "Add or update your student profile.")
+                .addOption(OptionType.STRING, "name", "Your full legal name", true)
+                .addOption(OptionType.STRING, "email", "Your student email", true)
+                .addOption(OptionType.INTEGER, "graduation-year", "Your expected year of graduation", true)
+                .queue();
+        getBranch().upsertCommand("lookup", "Look up a user's profile.")
+                .addOption(OptionType.USER, "user", "The user to query", true)
+                .queue();
         getBranch().upsertCommand("modal", "Send the get-verified embed with the attached modal.").queue();
+        getBranch().upsertCommand("irregularities", "Find irregularities and security risks in the server.").queue();
+        getBranch().upsertCommand("notify-unverified", "Notify unverified members to verify their identity.").queue();
+        getBranch().upsertCommand("positions", "View all positions and their assigned roles.").queue();
+        getBranch().upsertCommand("setpos", "Assign a role to a a position in the server.")
+                .addSubcommands(
+                        new SubcommandData("unverified", "The unverified position")
+                                .addOption(OptionType.ROLE, "role", "The role to connect"),
+                        new SubcommandData("verified", "The verified position")
+                                .addOption(OptionType.ROLE, "role", "The role to connect"),
+                        new SubcommandData("student", "The student position")
+                                .addOption(OptionType.ROLE, "role", "The role to connect"),
+                        new SubcommandData("alumni", "The alumni position")
+                                .addOption(OptionType.ROLE, "role", "The role to connect"),
+                        new SubcommandData("faculty", "The faculty position")
+                                .addOption(OptionType.ROLE, "role", "The role to connect"),
+                        new SubcommandData("guest", "The guest position")
+                                .addOption(OptionType.ROLE, "role", "The role to connect")
+                ).queue();
 
         System.out.println("Registering all commands... Done!");
 

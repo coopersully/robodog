@@ -1,10 +1,11 @@
 package me.coopersully;
 
-import me.coopersully.robodog.Robodog;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.events.guild.member.GenericGuildMemberEvent;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
@@ -17,19 +18,29 @@ import java.util.Random;
 public class Commons {
 
     public static Random random = new Random();
-    private static final Guild guild = Robodog.getJda().getGuildById(Robodog.getConfig().guildID);
 
-    public static @Nullable Role getRoleByName(ButtonInteractionEvent event, String name) {
+    public static @Nullable Role getRoleByName(@NotNull IReplyCallback event, String name) {
+
+        Guild guild = event.getGuild();
         assert guild != null;
+
         List<Role> unverifiedRoles = guild.getRolesByName(name, true);
         if (unverifiedRoles.isEmpty()) {
-            event.reply(":question: Couldn't find a role by the name of \"" + name + "\"").queue();
+            sendOrEdit(event, ":question: Couldn't find a role by the name of \"" + name + "\"");
             return null;
         }
         return unverifiedRoles.get(0);
     }
 
-    public static void wooshModal(ModalInteractionEvent event, Guild guild, EmbedBuilder embedBuilder, Button accept, Button deny) {
+    public static @Nullable Role getRoleByName(@NotNull GenericGuildMemberEvent event, String name) {
+        List<Role> unverifiedRoles = event.getGuild().getRolesByName(name, true);
+        if (unverifiedRoles.isEmpty()) {
+            return null;
+        }
+        return unverifiedRoles.get(0);
+    }
+
+    public static void wooshModal(ModalInteractionEvent event, @NotNull Guild guild, @NotNull EmbedBuilder embedBuilder, Button accept, Button deny) {
         MessageEmbed messageEmbed = embedBuilder.build();
 
         List<TextChannel> textChannels = guild.getTextChannels();
@@ -45,13 +56,10 @@ public class Commons {
                     .queue();
         }
 
-        event
-                .reply("We've got your details; hang tight and a staff member will verify you shortly! :)")
-                .setEphemeral(true)
-                .queue();
+        sendOrEdit(event, "We've got your details; hang tight and a staff member will verify you shortly! :)");
     }
 
-    public static void setCardVerified(ButtonInteractionEvent event) {
+    public static void setCardVerified(@NotNull ButtonInteractionEvent event) {
 
         /* Edit the original message to contain only one (1) disabled
         button that displays the action taken and the actor. */
@@ -76,6 +84,26 @@ public class Commons {
                         channel -> channel.sendMessageEmbeds(message)
                 )
                 .queue();
+    }
+
+    public static @NotNull String formatForSQL(@NotNull String string) {
+        return string.replace("\"", "").replace("'", "").strip();
+    }
+
+    public static void sendOrEdit(@NotNull IReplyCallback event, String message) {
+        if (event.isAcknowledged()) event.getHook().editOriginal(message).queue();
+        else event.reply(message).queue();
+    }
+
+    public static void sendOrEdit(@NotNull IReplyCallback event, MessageEmbed embed) {
+        if (event.isAcknowledged()) event.getHook().editOriginalEmbeds(embed).queue();
+        else event.replyEmbeds(embed).queue();
+    }
+
+
+    public static @NotNull String blankIfNull(@Nullable String string) {
+        if (string == null) return "";
+        return string;
     }
 
 }
