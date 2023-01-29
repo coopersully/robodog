@@ -116,10 +116,11 @@ public class SQLiteManager {
     public static void registerStudent(@NotNull Student user) {
         System.out.println("Attempting to create a new user entry...");
 
-        var command = "INSERT INTO users VALUES( '" + user.id() + "', 0, '" + user.name() + "', '" + user.email() + "', NULL, + user.year() + , '" + System.currentTimeMillis() + "', '" + user.note() + "' )";
+        var command = "INSERT INTO users VALUES( '" + user.id() + "', 0, '" + user.name() + "', '" + user.email() + "', NULL, "+ user.year() +" , '" + System.currentTimeMillis() + "', '" + user.note() + "' )";
         performStatementUpdate(command);
     }
 
+    @Deprecated
     public static ResultSet getStudentByID(String id) {
         return performStatementQuery("SELECT * FROM users WHERE type = 0 AND id = '" + id + "'");
     }
@@ -134,6 +135,10 @@ public class SQLiteManager {
         }
     }
 
+    public static ResultSet getUserByID(String id) {
+        return performStatementQuery("SELECT * FROM users WHERE id = '" + id + "'");
+    }
+
     public static ResultSet getGuestByEmail(@NotNull String email) {
         return performStatementQuery("SELECT * FROM users WHERE type = 3 AND email = '" + email.strip().toLowerCase() + "'");
     }
@@ -145,6 +150,7 @@ public class SQLiteManager {
         performStatementUpdate(command);
     }
 
+    @Deprecated
     public static ResultSet getGuestByID(String id) {
         return performStatementQuery("SELECT * FROM users WHERE type = 3 AND id = '" + id + "'");
     }
