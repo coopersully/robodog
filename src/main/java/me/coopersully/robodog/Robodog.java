@@ -84,6 +84,7 @@ public class Robodog {
         jda.addEventListener(new CommandNotifyUnverified());
         jda.addEventListener(new CommandPositions());
         jda.addEventListener(new CommandSetPos());
+        jda.addEventListener(new CommandMakePos());
 
         jda.addEventListener(new MemberAttendances());
         jda.addEventListener(new JoinGuild());
@@ -142,6 +143,7 @@ public class Robodog {
                         new SubcommandData("guest", "The guest position")
                                 .addOption(OptionType.ROLE, "role", "The role to connect")
                 ).queue();
+        getBranch().upsertCommand("makepos", "Create or assign all positions automatically.").queue();
 
         System.out.println("Registering all commands... Done!");
 
