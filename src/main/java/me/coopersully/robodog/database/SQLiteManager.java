@@ -1,9 +1,11 @@
 package me.coopersully.robodog.database;
 
+import me.coopersully.Commons;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -113,6 +115,7 @@ public class SQLiteManager {
         return performStatementQuery("SELECT * FROM users WHERE type = 0 AND email = '" + email.strip().toLowerCase() + "'");
     }
 
+    @Deprecated
     public static void registerStudent(@NotNull Student user) {
         System.out.println("Attempting to create a new user entry...");
 
@@ -139,10 +142,14 @@ public class SQLiteManager {
         return performStatementQuery("SELECT * FROM users WHERE id = '" + id + "'");
     }
 
-    public static ResultSet getGuestByEmail(@NotNull String email) {
-        return performStatementQuery("SELECT * FROM users WHERE type = 3 AND email = '" + email.strip().toLowerCase() + "'");
+    public static void registerUser(@NotNull RegisteredUser user) {
+        System.out.println("Attempting to create a new user entry...");
+
+        var command = "INSERT INTO users VALUES( '" + user.id() + "', " + user.type() + ", '" + user.name() + "', " + user.email() + ", '" + user.business() + "', '" + user.grad_year() + "', '" + System.currentTimeMillis() + "', '" + user.note() + "' )";
+        performStatementUpdate(command);
     }
 
+    @Deprecated
     public static void registerGuest(@NotNull Guest guest) {
         System.out.println("Attempting to create a new user entry...");
 

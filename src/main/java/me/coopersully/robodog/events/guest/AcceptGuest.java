@@ -2,6 +2,7 @@ package me.coopersully.robodog.events.guest;
 
 import me.coopersully.Commons;
 import me.coopersully.robodog.database.Guest;
+import me.coopersully.robodog.database.RegisteredUser;
 import me.coopersully.robodog.database.SQLiteManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -45,8 +46,8 @@ public class AcceptGuest extends ListenerAdapter {
         String business = null;
         if (args.length >= 5) business = args[4];
 
-        Guest guest = new Guest(buttonId, name, Commons.blankIfNull(business), "");
-        SQLiteManager.registerGuest(guest);
+        RegisteredUser guest = new RegisteredUser(buttonId, 3, name, null, business, null, null);
+        SQLiteManager.registerUser(guest);
 
         System.out.println("Attempting to verify user with an id of " + buttonId);
         System.out.println(">     " + Arrays.toString(args));

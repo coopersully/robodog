@@ -48,7 +48,7 @@ public class Robodog {
 
         // Load config into memory
         try {
-            config = new BotConfig("./config.json");
+            config = new BotConfig("config.json");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

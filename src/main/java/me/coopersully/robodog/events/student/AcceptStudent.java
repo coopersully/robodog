@@ -1,6 +1,7 @@
 package me.coopersully.robodog.events.student;
 
 import me.coopersully.Commons;
+import me.coopersully.robodog.database.RegisteredUser;
 import me.coopersully.robodog.database.SQLiteManager;
 import me.coopersully.robodog.database.Student;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -46,8 +47,8 @@ public class AcceptStudent extends ListenerAdapter {
         String email = args[4];
         String year = args[5];
 
-        Student student = new Student(buttonId, name, email, year, "");
-        SQLiteManager.registerStudent(student);
+        RegisteredUser student = new RegisteredUser(buttonId, 0, name, email, null, year, null);
+        SQLiteManager.registerUser(student);
 
         System.out.println("Attempting to verify user with an id of \"" + buttonId + "\"");
         System.out.println(">     " + Arrays.toString(args));

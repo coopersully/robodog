@@ -2,6 +2,7 @@ package me.coopersully.robodog.database;
 
 import me.coopersully.Commons;
 
+@Deprecated
 public record Student(String id, String name, String email, String year, String note) {
 
     public Student(String id, String name, String email, String year, String note) {
