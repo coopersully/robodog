@@ -1,30 +1,25 @@
 package me.coopersully.robodog.database;
 
-import me.coopersully.Commons;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
 
 public class SQLiteManager {
 
     private static final String FILE_NAME = "robodog.db";
 
-    //region General database management
-    private static Connection conn;
     private static String url;
+    private static Connection conn;
 
     public static void createNewDatabase() {
         // Create database
         url = "jdbc:sqlite:" + FILE_NAME;
         System.out.println("Creating database in \"" + url + "\"");
         try {
-            Connection conn = DriverManager.getConnection(url);
+            conn = DriverManager.getConnection(url);
             if (conn != null) {
                 DatabaseMetaData meta = conn.getMetaData();
                 System.out.println("The driver name is " + meta.getDriverName());
@@ -37,10 +32,10 @@ public class SQLiteManager {
     }
 
     public static void connect() {
-        conn = null;
+        //region General database management
         try {
             // Create a connection to the database
-            conn = DriverManager.getConnection(url);
+            DriverManager.getConnection(url);
             System.out.println("Connection to SQLite has been established.");
         } catch (SQLException e) {
             System.out.println("Failed to establish SQLite connection.");
@@ -73,13 +68,7 @@ public class SQLiteManager {
     }
 
     public static void ensureTablesExist() {
-        /*
-        id - Discord UUID
-        name - Full Name
-        business - Association, business, or organization
-        seen - System#currentTimeMillis() at which they were registered
-        note - Additional notes, added by staff manually or Robodog automatically
-         */
+
         var guilds = performStatementUpdate("CREATE TABLE IF NOT EXISTS guilds ( id TEXT, r_unverified TEXT, r_verified TEXT, r_student TEXT, r_alumni TEXT, r_faculty TEXT, r_guest TEXT )");
         if (guilds) System.out.println("Existence of \"guilds\" table successfully confirmed.");
 
@@ -105,22 +94,11 @@ public class SQLiteManager {
     //region Student registration
     public static int isStudentRegistered(@NotNull User user) {
         try {
-            return performStatementQuery("SELECT COUNT(*) AS total FROM users WHERE type = 0 AND id = " + user.getId()).getInt("total");
+            return performStatementQuery("SELECT COUNT(*) AS total FROM users WHERE type = 0 AND id = " + user.getId())
+                    .getInt("total");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public static ResultSet getStudentByEmail(@NotNull String email) {
-        return performStatementQuery("SELECT * FROM users WHERE type = 0 AND email = '" + email.strip().toLowerCase() + "'");
-    }
-
-    @Deprecated
-    public static void registerStudent(@NotNull Student user) {
-        System.out.println("Attempting to create a new user entry...");
-
-        var command = "INSERT INTO users VALUES( '" + user.id() + "', 0, '" + user.name() + "', '" + user.email() + "', NULL, "+ user.year() +" , '" + System.currentTimeMillis() + "', '" + user.note() + "' )";
-        performStatementUpdate(command);
     }
 
     @Deprecated
@@ -132,7 +110,8 @@ public class SQLiteManager {
     //region User registration
     public static int isGuestRegistered(@NotNull User user) {
         try {
-            return performStatementQuery("SELECT COUNT(*) AS total FROM users WHERE type = 3 AND id = " + user.getId()).getInt("total");
+            return performStatementQuery("SELECT COUNT(*) AS total FROM users WHERE type = 3 AND id = " + user.getId())
+                    .getInt("total");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -150,14 +129,6 @@ public class SQLiteManager {
     }
 
     @Deprecated
-    public static void registerGuest(@NotNull Guest guest) {
-        System.out.println("Attempting to create a new user entry...");
-
-        var command = "INSERT INTO users VALUES( '" + guest.id() + "', 3, '" + guest.name() + "', NULL, '" + guest.business() + "', '" + System.currentTimeMillis() + "', '" + guest.note() + "' )";
-        performStatementUpdate(command);
-    }
-
-    @Deprecated
     public static ResultSet getGuestByID(String id) {
         return performStatementQuery("SELECT * FROM users WHERE type = 3 AND id = '" + id + "'");
     }
@@ -166,7 +137,8 @@ public class SQLiteManager {
     //region Guild registration
     public static int isGuildRegistered(@NotNull Guild guild) {
         try {
-            return performStatementQuery("SELECT COUNT(*) AS total FROM guilds WHERE id = " + guild.getId()).getInt("total");
+            return performStatementQuery("SELECT COUNT(*) AS total FROM guilds WHERE id = " + guild.getId())
+                    .getInt("total");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

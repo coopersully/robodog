@@ -24,7 +24,7 @@ public class CommandLookup extends ListenerAdapter {
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
 
         var command = event.getCommandPath();
-        if (!command.contains("lookup")) return;
+        if (!command.contains("profile")) return;
 
         Member member = event.getMember();
         if (!member.hasPermission(Permission.ADMINISTRATOR)) {

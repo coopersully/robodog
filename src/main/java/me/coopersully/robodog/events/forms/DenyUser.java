@@ -1,4 +1,4 @@
-package me.coopersully.robodog.events;
+package me.coopersully.robodog.events.forms;
 
 import me.coopersully.Commons;
 import net.dv8tion.jda.api.entities.*;

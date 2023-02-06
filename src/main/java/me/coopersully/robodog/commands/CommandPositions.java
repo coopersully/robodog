@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -66,8 +67,7 @@ public class CommandPositions extends ListenerAdapter {
 
     private @Nullable Role getRole(Guild guild, @NotNull ResultSet resultSet, String roleName) throws SQLException {
         var roleID = resultSet.getString(roleName);
-            if (roleID != null) return guild.getRoleById(roleID);
+        if (roleID != null) return guild.getRoleById(roleID);
         return null;
     }
-
 }

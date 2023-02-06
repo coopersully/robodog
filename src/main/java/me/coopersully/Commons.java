@@ -12,6 +12,8 @@ import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Random;
 
@@ -100,10 +102,34 @@ public class Commons {
         else event.replyEmbeds(embed).queue();
     }
 
-
     public static @NotNull String blankIfNull(@Nullable String string) {
         if (string == null) return "";
         return string;
+    }
+
+    public static int getPositionByName(@NotNull String name) {
+        return switch (name.toLowerCase().strip()) {
+            case "student" -> 0;
+            case "alumni" -> 1;
+            case "faculty" -> 2;
+            case "guest" -> 3;
+            default -> throw new RuntimeException("An invalid position id was provided.");
+        };
+    }
+
+    public static @Nullable Role getGuildRole(@NotNull ButtonInteractionEvent event, @NotNull ResultSet resultSet, String columnLabel) {
+        // Retrieve the verified role and grant it to the user
+        String roleId;
+        Role role;
+        try {
+            roleId = resultSet.getString(columnLabel);
+            role = event.getGuild().getRoleById(roleId);
+        } catch (SQLException | NullPointerException | NumberFormatException e) {
+            //throw new RuntimeException(e);
+            event.reply("Failed to add one or more roles to the user; ensure that all positions are assigned.").setEphemeral(true).queue();
+            return null;
+        }
+        return role;
     }
 
 }

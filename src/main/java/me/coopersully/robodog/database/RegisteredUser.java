@@ -20,23 +20,23 @@ public final class RegisteredUser {
         try {
             Long.parseLong(id);
         } catch (NumberFormatException e) {
-            throw new RuntimeException("User constructed with a faulty id, \"" + id + "\".");
+            throw new RuntimeException("An invalid user identifier was provided.");
         }
         this.id = id;
 
         // Validate, reformat, and assign position type
         if (type < 0 || type > 3) {
-            throw new RuntimeException("User constructed with a faulty type " + type);
+            throw new RuntimeException("An invalid position type was provided.");
         }
         this.type = type;
 
         // Validate, reformat, and assign user's name
-        this.name = Commons.formatForSQL(name).toUpperCase();;
+        this.name = Commons.formatForSQL(name).toUpperCase();
 
         // Validate, reformat, and assign user's school email
         if (email != null) {
             if (!email.contains("@")) {
-            throw new RuntimeException("User constructed with a faulty email, \"" + email + "\".");
+                throw new RuntimeException("An invalid email address was provided.");
             }
             this.email = Commons.formatForSQL(email).toLowerCase();
         }
@@ -49,12 +49,12 @@ public final class RegisteredUser {
         // Validate, reformat, and assign user's graduation year
         if (grad_year != null) {
             if (grad_year.length() != 4) {
-                throw new RuntimeException("Student constructed with a faulty year, \"" + grad_year + "\".");
+                throw new RuntimeException("An invalid graduation year was provided; please include a 4-digit year.");
             }
             try {
                 this.grad_year = Integer.parseInt(grad_year);
             } catch (NumberFormatException e) {
-                throw new RuntimeException("Student constructed with a faulty year, \"" + grad_year + "\".");
+                throw new RuntimeException("An invalid graduation year was provided.");
             }
         }
 

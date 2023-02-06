@@ -3,16 +3,16 @@ package me.coopersully.robodog;
 import me.coopersully.robodog.commands.*;
 import me.coopersully.robodog.database.MemberAttendances;
 import me.coopersully.robodog.database.SQLiteManager;
-import me.coopersully.robodog.events.DenyUser;
-import me.coopersully.robodog.events.GenericButtonPressed;
+import me.coopersully.robodog.events.forms.DenyUser;
+import me.coopersully.robodog.events.forms.GenericButtonPressed;
 import me.coopersully.robodog.events.HearLizardReplyLizard;
 import me.coopersully.robodog.events.JoinGuild;
-import me.coopersully.robodog.events.guest.AcceptGuest;
-import me.coopersully.robodog.events.guest.GuestFormButton;
-import me.coopersully.robodog.events.guest.GuestFormSend;
-import me.coopersully.robodog.events.student.AcceptStudent;
-import me.coopersully.robodog.events.student.StudentFormButton;
-import me.coopersully.robodog.events.student.StudentFormSend;
+import me.coopersully.robodog.events.forms.guest.AcceptGuest;
+import me.coopersully.robodog.events.forms.guest.GuestFormButton;
+import me.coopersully.robodog.events.forms.guest.GuestFormSend;
+import me.coopersully.robodog.events.forms.student.AcceptStudent;
+import me.coopersully.robodog.events.forms.student.StudentFormButton;
+import me.coopersully.robodog.events.forms.student.StudentFormSend;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
@@ -77,7 +77,7 @@ public class Robodog {
 
         // Register all event listeners
         jda.addEventListener(new CommandVerify());
-        jda.addEventListener(new CommandProfile());
+        jda.addEventListener(new CommandRegister());
         jda.addEventListener(new CommandLookup());
         jda.addEventListener(new CommandModal());
         jda.addEventListener(new CommandIrregularities());
@@ -115,13 +115,13 @@ public class Robodog {
         System.out.println("Registering all commands...");
 
         getBranch().updateCommands().queue();
-        getBranch().upsertCommand("verify", "Verify your identity!").queue();
+        //getBranch().upsertCommand("register", "Verify your identity!").queue();
         getBranch().upsertCommand("profile", "Add or update your student profile.")
                 .addOption(OptionType.STRING, "name", "Your full legal name", true)
                 .addOption(OptionType.STRING, "email", "Your student email", true)
                 .addOption(OptionType.INTEGER, "graduation-year", "Your expected year of graduation", true)
                 .queue();
-        getBranch().upsertCommand("lookup", "Look up a user's profile.")
+        getBranch().upsertCommand("profile", "Look up a user's profile.")
                 .addOption(OptionType.USER, "user", "The user to query", true)
                 .queue();
         getBranch().upsertCommand("modal", "Send the get-verified embed with the attached modal.").queue();

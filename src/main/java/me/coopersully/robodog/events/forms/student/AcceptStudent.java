@@ -1,9 +1,9 @@
-package me.coopersully.robodog.events.student;
+package me.coopersully.robodog.events.forms.student;
 
 import me.coopersully.Commons;
+import me.coopersully.robodog.Robodog;
 import me.coopersully.robodog.database.RegisteredUser;
 import me.coopersully.robodog.database.SQLiteManager;
-import me.coopersully.robodog.database.Student;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -13,15 +13,15 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
-import java.sql.SQLException;
 import java.util.Arrays;
 
 public class AcceptStudent extends ListenerAdapter {
 
     @Override
-    public void onButtonInteraction(ButtonInteractionEvent event) {
+    public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
 
         // If the event didn't occur in a guild, ignore it.
         if (!event.isFromGuild()) return;
@@ -47,14 +47,8 @@ public class AcceptStudent extends ListenerAdapter {
         String email = args[4];
         String year = args[5];
 
-        RegisteredUser student = new RegisteredUser(buttonId, 0, name, email, null, year, null);
-        SQLiteManager.registerUser(student);
-
-        System.out.println("Attempting to verify user with an id of \"" + buttonId + "\"");
+        System.out.println("Attempting to verify user with an id of " + buttonId);
         System.out.println(">     " + Arrays.toString(args));
-
-        // Disable buttons on card and add "verified badge"
-        Commons.setCardVerified(event);
 
         /* Create a Guild Member object from the retrieved ID.
         If the object is null, the user left the guild/doesn't exist. */
@@ -62,70 +56,47 @@ public class AcceptStudent extends ListenerAdapter {
         try {
             member = guild.retrieveMemberById(buttonId).complete();
         } catch (ErrorResponseException e) {
-            Commons.sendOrEdit(event, ":question: It looks like that user no longer exists in this server. However, their record has been created in the database and they will be automatically verified if they re-join.");
+            Commons.sendOrEdit(event, ":question: That user no longer exists in this server.");
             return;
         }
+
+        // Register the user
+        RegisteredUser student =
+                new RegisteredUser(buttonId, 0, name, email, null, year, null);
+        SQLiteManager.registerUser(student);
+
+        // Disable buttons on card and add "verified badge"
+        Commons.setCardVerified(event);
 
         // Get server roles
         var resultSet = SQLiteManager.getGuildByID(guild.getId());
 
-        // Retrieve the verified role and grant it to the user
-        String verifiedID;
-        try {
-            verifiedID = resultSet.getString("r_verified");
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        // Retrieve the related role(s) role and update the user
+        Role unverifiedRole = Commons.getGuildRole(event, resultSet, "r_unverified");
+        if (unverifiedRole == null) return; // If null, event is replied to above.
+        guild.removeRoleFromMember(member, unverifiedRole).queue();
 
-        if (verifiedID != null) {
-            Role verifiedRole = guild.getRoleById(verifiedID);
-            if (verifiedRole != null) guild.addRoleToMember(member, verifiedRole).queue();
-        }
+        Role verifiedRole = Commons.getGuildRole(event, resultSet, "r_verified");
+        if (verifiedRole == null) return; // If null, event is replied to above.
+        guild.addRoleToMember(member, verifiedRole).queue();
 
-        // Retrieve the guest role and grant it to the user
-        String studentID;
-        try {
-            studentID = resultSet.getString("r_student");
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        if (studentID == null) {
-            Commons.sendOrEdit(event, ":question: A student role was never assigned; please assign one with ``/setpos student`` before accepting this user.");
-            return;
-        } else {
-            Role studentRole = guild.getRoleById(studentID);
-            if (studentRole == null) {
-                Commons.sendOrEdit(event, ":question: The assigned student role no longer exists; please assign a new one with ``/setpos student`` before accepting this user.");
-                return;
-            }
-            guild.addRoleToMember(member, studentRole).queue();
-        }
-
-        // Retrieve the unverified role and revoke it from the user
-        String unverifiedID;
-        try {
-            unverifiedID = resultSet.getString("r_unverified");
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        if (unverifiedID != null) {
-            Role unverifiedRole = guild.getRoleById(unverifiedID);
-            if (unverifiedRole != null) guild.removeRoleFromMember(member, unverifiedRole).queue();
-        }
+        Role studentRole = Commons.getGuildRole(event, resultSet, "r_student");
+        if (studentRole == null) return; // If null, event is replied to above.
+        guild.addRoleToMember(member, studentRole).queue();
 
         Commons.sendOrEdit(event, ":white_check_mark: Successfully verified " + member.getAsMention());
 
-        /* Alert the user that they've been verified in
-        the server and ask them to join the presence page. */
+        // Alert the user that they've been verified inthe server
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder
                 .setColor(Color.green)
                 .setThumbnail(guild.getIconUrl())
                 .setTitle("You've been verified!")
-                .setDescription("**Your identity was successfully verified in CSG; you should now be able to access all public channels and chat with other members.**")
+                .setDescription("**Your identity was successfully verified in " + guild.getName() + "; you should now be able to access all public channels and chat with other members.**")
         ;
+
+        // If the server is CSG, send server-specific information
+        if (!Robodog.getConfig().guildID.equals(guild.getId())) return;
 
         User memberUser = member.getUser();
         Commons.directMessage(memberUser, embedBuilder.build());

@@ -1,7 +1,7 @@
 package me.coopersully.robodog.commands;
 
-import me.coopersully.robodog.events.guest.GuestFormButton;
-import me.coopersully.robodog.events.student.StudentFormButton;
+import me.coopersully.robodog.events.forms.guest.GuestFormButton;
+import me.coopersully.robodog.events.forms.student.StudentFormButton;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
