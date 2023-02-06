@@ -1,12 +1,15 @@
 package me.coopersully.robodog.commands;
 
 import me.coopersully.Commons;
+import me.coopersully.robodog.database.SQLiteManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.util.List;
@@ -29,13 +32,17 @@ public class CommandNotifyUnverified extends ListenerAdapter {
 
         event.deferReply().setEphemeral(true).queue();
 
-        guild.findMembersWithRoles(Commons.getRoleByName(event, "quarantine")).onSuccess(
-                (members -> notifyMembers(members, event))
-        );
+        Role unverified = SQLiteManager.getGuildUnverifiedRole(guild);
+        if (unverified == null) {
+            Commons.sendOrEdit(event, "There is not an unverified role assigned in this guild.");
+            return;
+        }
+
+        guild.findMembersWithRoles(unverified).onSuccess((members -> notifyMembers(members, event)));
         Commons.sendOrEdit(event, "No unverified members were found.");
     }
 
-    private void notifyMembers(List<Member> members, SlashCommandInteractionEvent event) {
+    private void notifyMembers(@NotNull List<Member> members, SlashCommandInteractionEvent event) {
 
         if (members.isEmpty()) return;
 

@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.*;
 
@@ -145,19 +146,22 @@ public class SQLiteManager {
         performStatementUpdate("UPDATE guilds SET r_" + namespace + " = '" + role.getId() + "' WHERE id = '" + id + "'");
     }
 
-    public static Role getGuildRoleByNamespace(@NotNull Guild guild, String namespace) {
+    public static @Nullable Role getGuildRoleByNamespace(@NotNull Guild guild, @NotNull String namespace) {
         var resultSet = performStatementQuery("SELECT * FROM guilds WHERE id = '" + guild.getId() + "'");
-        long roleID;
+
+        if (!namespace.startsWith("r_")) namespace = "r_" + namespace;
+
+        String roleId;
         try {
-            var role = resultSet.getString("r_" + namespace);
-            if (role == null) return null;
-            roleID = Long.parseLong(role);
+            roleId= resultSet.getString(namespace);
+            if (roleId == null) {
+                System.out.println("Role " + namespace + " was null for guild " + guild);
+                return null;
+            }
         } catch (SQLException e) {
             throw new RuntimeException("Incorrectly called getGuildRoleByNameSpace with '" +  namespace + "'");
-        } catch (NumberFormatException e) {
-            throw new RuntimeException(e);
         }
-        return guild.getRoleById(roleID);
+        return guild.getRoleById(roleId);
     }
 
     public static Role getGuildUnverifiedRole(Guild guild) {

@@ -26,33 +26,66 @@ public class CommandMakePos extends ListenerAdapter {
             return;
         }
 
-        var faculty = getOrCreateRole(guild, "Faculty");
-        SQLiteManager.setGuildPosition(guild.getId(), "faculty", faculty);
+        // Retrieve or create 'faculty' positional role
+        Role faculty = SQLiteManager.getGuildFacultyRole(guild);
+        if (faculty == null) {
+            faculty = guild.createRole()
+                    .setName("Faculty")
+                    .setPermissions(Permission.EMPTY_PERMISSIONS)
+                    .complete();
+            SQLiteManager.setGuildPosition(guild.getId(), "faculty", faculty);
+        }
 
-        var alumni = getOrCreateRole(guild, "Alumni");
-        SQLiteManager.setGuildPosition(guild.getId(), "alumni", alumni);
+        // Retrieve or create 'alumni' positional role
+        Role alumni = SQLiteManager.getGuildAlumniRole(guild);
+        if (alumni == null) {
+            alumni = guild.createRole()
+                    .setName("Alumni")
+                    .setPermissions(Permission.EMPTY_PERMISSIONS)
+                    .complete();
+            SQLiteManager.setGuildPosition(guild.getId(), "alumni", alumni);
+        }
+        // Retrieve or create 'student' positional role
+        Role student = SQLiteManager.getGuildStudentRole(guild);
+        if (student == null) {
+            student = guild.createRole()
+                    .setName("Student")
+                    .setPermissions(Permission.EMPTY_PERMISSIONS)
+                    .complete();
+            SQLiteManager.setGuildPosition(guild.getId(), "student", student);
+        }
 
-        var student = getOrCreateRole(guild, "Student");
-        SQLiteManager.setGuildPosition(guild.getId(), "student", student);
+        // Retrieve or create 'guest' positional role
+        Role guest = SQLiteManager.getGuildGuestRole(guild);
+        if (guest == null) {
+            guest = guild.createRole()
+                    .setName("Guest")
+                    .setPermissions(Permission.EMPTY_PERMISSIONS)
+                    .complete();
+            SQLiteManager.setGuildPosition(guild.getId(), "guest", guest);
+        }
 
-        var guest = getOrCreateRole(guild, "Guest");
-        SQLiteManager.setGuildPosition(guild.getId(), "guest", guest);
+        // Retrieve or create 'verified' positional role
+        Role verified = SQLiteManager.getGuildVerifiedRole(guild);
+        if (verified == null) {
+            verified = guild.createRole()
+                    .setName("Verified")
+                    .setPermissions(Permission.EMPTY_PERMISSIONS)
+                    .complete();
+            SQLiteManager.setGuildPosition(guild.getId(), "verified", verified);
+        }
 
-        var verified = getOrCreateRole(guild, "Verified");
-        SQLiteManager.setGuildPosition(guild.getId(), "verified", verified);
-
-        var unverified = getOrCreateRole(guild, "Unverified");
-        SQLiteManager.setGuildPosition(guild.getId(), "unverified", unverified);
+        // Retrieve or create 'unverified' positional role
+        Role unverified = SQLiteManager.getGuildUnverifiedRole(guild);
+        if (unverified == null) {
+            unverified = guild.createRole()
+                    .setName("Unverified")
+                    .setPermissions(Permission.EMPTY_PERMISSIONS)
+                    .complete();
+            SQLiteManager.setGuildPosition(guild.getId(), "unverified", unverified);
+        }
 
         event.reply("Automatically filled all positions. Check them with ``/positions``").setEphemeral(true).queue();
     }
-
-  public static Role getOrCreateRole(@NotNull Guild guild, String name) {
-    Role role = guild.getRolesByName(name, true).stream().findFirst().orElse(null);
-    if (role != null) return role;
-
-    role = guild.createRole().setName(name).setPermissions(Permission.EMPTY_PERMISSIONS).complete();
-    return role;
-  }
 
 }

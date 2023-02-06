@@ -3,6 +3,7 @@ package me.coopersully.robodog;
 import me.coopersully.robodog.commands.*;
 import me.coopersully.robodog.database.MemberAttendances;
 import me.coopersully.robodog.database.SQLiteManager;
+import me.coopersully.robodog.events.Ready;
 import me.coopersully.robodog.events.forms.DenyUser;
 import me.coopersully.robodog.events.forms.GenericButtonPressed;
 import me.coopersully.robodog.events.HearLizardReplyLizard;
@@ -76,9 +77,11 @@ public class Robodog {
 
         // Set cosmetic status
         jda.getPresence().setStatus(OnlineStatus.ONLINE);
-        jda.getPresence().setActivity(Activity.watching("CSG"));
+        jda.getPresence().setActivity(Activity.watching("Samford communities"));
 
         // Register all event listeners
+        jda.addEventListener(new Ready());
+
         jda.addEventListener(new CommandVerify());
         jda.addEventListener(new CommandRegister());
         jda.addEventListener(new CommandLookup());
