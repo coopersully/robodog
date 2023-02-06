@@ -12,7 +12,7 @@ public class JoinGuild extends ListenerAdapter {
     @Override
     public void onGuildJoin(@NotNull GuildJoinEvent event) {
         Guild guild = event.getGuild();
-        if (SQLiteManager.isGuildRegistered(guild) > 0) return;
+        if (SQLiteManager.isGuildRegistered(guild)) return;
         SQLiteManager.registerGuild(guild);
     }
 

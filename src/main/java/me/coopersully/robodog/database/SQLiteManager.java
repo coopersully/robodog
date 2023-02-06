@@ -91,27 +91,12 @@ public class SQLiteManager {
     }
     //endregion
 
-    //region Student registration
-    public static int isStudentRegistered(@NotNull User user) {
-        try {
-            return performStatementQuery("SELECT COUNT(*) AS total FROM users WHERE type = 0 AND id = " + user.getId())
-                    .getInt("total");
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Deprecated
-    public static ResultSet getStudentByID(String id) {
-        return performStatementQuery("SELECT * FROM users WHERE type = 0 AND id = '" + id + "'");
-    }
-    //endregion
-
     //region User registration
-    public static int isGuestRegistered(@NotNull User user) {
+    public static boolean isUserRegistered(@NotNull User user) {
         try {
-            return performStatementQuery("SELECT COUNT(*) AS total FROM users WHERE type = 3 AND id = " + user.getId())
+            int numUsers = performStatementQuery("SELECT COUNT(*) AS total FROM users WHERE id = " + user.getId())
                     .getInt("total");
+            return numUsers > 0;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -121,24 +106,25 @@ public class SQLiteManager {
         return performStatementQuery("SELECT * FROM users WHERE id = '" + id + "'");
     }
 
+    private static String encapsulateOrNull(Object object) {
+        if (object == null) return null;
+        return "'" + object + "'";
+    }
+
     public static void registerUser(@NotNull RegisteredUser user) {
         System.out.println("Attempting to create a new user entry...");
 
-        var command = "INSERT INTO users VALUES( '" + user.id() + "', " + user.type() + ", '" + user.name() + "', " + user.email() + ", '" + user.business() + "', '" + user.grad_year() + "', '" + System.currentTimeMillis() + "', '" + user.note() + "' )";
+        var command = "INSERT INTO users VALUES( '" + user.id() + "', " + user.type() + ", '" + user.name() + "', " + encapsulateOrNull(user.email()) + ", " + encapsulateOrNull(user.business()) + ", '" + user.grad_year() + "', '" + System.currentTimeMillis() + "', '" + user.note() + "' )";
         performStatementUpdate(command);
-    }
-
-    @Deprecated
-    public static ResultSet getGuestByID(String id) {
-        return performStatementQuery("SELECT * FROM users WHERE type = 3 AND id = '" + id + "'");
     }
     //endregion
 
     //region Guild registration
-    public static int isGuildRegistered(@NotNull Guild guild) {
+    public static boolean isGuildRegistered(@NotNull Guild guild) {
         try {
-            return performStatementQuery("SELECT COUNT(*) AS total FROM guilds WHERE id = " + guild.getId())
+            int numGuilds = performStatementQuery("SELECT COUNT(*) AS total FROM guilds WHERE id = " + guild.getId())
                     .getInt("total");
+            return numGuilds > 0;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -157,6 +143,45 @@ public class SQLiteManager {
 
     public static void setGuildPosition(String id, String namespace, @NotNull Role role) {
         performStatementUpdate("UPDATE guilds SET r_" + namespace + " = '" + role.getId() + "' WHERE id = '" + id + "'");
+    }
+
+    public static Role getGuildRoleByNamespace(@NotNull Guild guild, String namespace) {
+        var resultSet = performStatementQuery("SELECT * FROM guilds WHERE id = '" + guild.getId() + "'");
+        long roleID;
+        try {
+            var role = resultSet.getString("r_" + namespace);
+            if (role == null) return null;
+            roleID = Long.parseLong(role);
+        } catch (SQLException e) {
+            throw new RuntimeException("Incorrectly called getGuildRoleByNameSpace with '" +  namespace + "'");
+        } catch (NumberFormatException e) {
+            throw new RuntimeException(e);
+        }
+        return guild.getRoleById(roleID);
+    }
+
+    public static Role getGuildUnverifiedRole(Guild guild) {
+        return getGuildRoleByNamespace(guild, "unverified");
+    }
+
+    public static Role getGuildVerifiedRole(Guild guild) {
+        return getGuildRoleByNamespace(guild, "verified");
+    }
+
+    public static Role getGuildStudentRole(Guild guild) {
+        return getGuildRoleByNamespace(guild, "student");
+    }
+
+    public static Role getGuildAlumniRole(Guild guild) {
+        return getGuildRoleByNamespace(guild, "alumni");
+    }
+
+    public static Role getGuildFacultyRole(Guild guild) {
+        return getGuildRoleByNamespace(guild, "faculty");
+    }
+
+    public static Role getGuildGuestRole(Guild guild) {
+        return getGuildRoleByNamespace(guild, "guest");
     }
     //endregion
 

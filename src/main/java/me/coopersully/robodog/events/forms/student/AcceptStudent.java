@@ -12,10 +12,10 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
+import java.time.LocalDate;
 import java.util.Arrays;
 
 public class AcceptStudent extends ListenerAdapter {
@@ -23,24 +23,17 @@ public class AcceptStudent extends ListenerAdapter {
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
 
-        // If the event didn't occur in a guild, ignore it.
-        if (!event.isFromGuild()) return;
+        if (!Commons.isButtonEventValid(event, "ACCEPT_STUDENT_")) return;
+
+        event.deferReply().setEphemeral(true).queue();
 
         Guild guild = event.getGuild();
         assert guild != null;
 
-        Button button = event.getButton();
-
-        // If the button has no identifier, ignore the event.
-        String buttonId = button.getId();
-        if (buttonId == null) return;
-
-        // Ensure that the event is occurring on the Accept Button
-        if (!buttonId.contains("ACCEPT_STUDENT_")) return;
-
-        event.deferReply().setEphemeral(true).queue();
-
         // Retrieve the requesting user's ID from the button
+        var buttonId = event.getButton().getId();
+        assert buttonId != null;
+
         String[] args = buttonId.split("_");
         buttonId = args[2];
         String name = args[3];
@@ -60,29 +53,28 @@ public class AcceptStudent extends ListenerAdapter {
             return;
         }
 
-        // Register the user
-        RegisteredUser student =
-                new RegisteredUser(buttonId, 0, name, email, null, year, null);
-        SQLiteManager.registerUser(student);
+        // Determine whether the user is a student or alumni
+        int type = 0;
+        LocalDate now = LocalDate.now();
+        if (now.getYear() > Integer.parseInt(year)) {
+            type = 1; // Alumni
+        }
+
+        // Register the user and catch any data malformations
+        RegisteredUser registeredUser;
+        try {
+            registeredUser = new RegisteredUser(buttonId, type, name, email, null, year, null);
+        } catch (RuntimeException e) {
+            event.reply(e.getMessage()).setEphemeral(true).queue();
+            return;
+        }
+        SQLiteManager.registerUser(registeredUser);
 
         // Disable buttons on card and add "verified badge"
         Commons.setCardVerified(event);
 
-        // Get server roles
-        var resultSet = SQLiteManager.getGuildByID(guild.getId());
-
-        // Retrieve the related role(s) role and update the user
-        Role unverifiedRole = Commons.getGuildRole(event, resultSet, "r_unverified");
-        if (unverifiedRole == null) return; // If null, event is replied to above.
-        guild.removeRoleFromMember(member, unverifiedRole).queue();
-
-        Role verifiedRole = Commons.getGuildRole(event, resultSet, "r_verified");
-        if (verifiedRole == null) return; // If null, event is replied to above.
-        guild.addRoleToMember(member, verifiedRole).queue();
-
-        Role studentRole = Commons.getGuildRole(event, resultSet, "r_student");
-        if (studentRole == null) return; // If null, event is replied to above.
-        guild.addRoleToMember(member, studentRole).queue();
+        // Update user's roles
+        Commons.refreshUserRoles(guild, event.getUser());
 
         Commons.sendOrEdit(event, ":white_check_mark: Successfully verified " + member.getAsMention());
 
@@ -114,10 +106,10 @@ public class AcceptStudent extends ListenerAdapter {
                 .setTitle("Get connected with the community!", "https://linktr.ee/csgsamford")
                 .setDescription("We'd love for you to join us for any and all of our upcoming events! Follow us on social media to stay up-to-date on all of our announcements and events.")
                 .appendDescription("\n")
-                .appendDescription("\n\u2022 [@samfordgamers on Instagram](https://instagram.com/samfordgamers)")
-                .appendDescription("\n\u2022 [@samfordgamers on Twitter](https://twitter.com/samfordgamers)")
-                .appendDescription("\n\u2022 [@samfordgamers on Facebook](https://www.facebook.com/groups/samfordgamers)")
-                .appendDescription("\n\u2022 [@samfordgamers on Twitch](https://www.twitch.tv/samfordgamers)")
+                .appendDescription("\n• [@samfordgamers on Instagram](https://instagram.com/samfordgamers)")
+                .appendDescription("\n• [@samfordgamers on Twitter](https://twitter.com/samfordgamers)")
+                .appendDescription("\n• [@samfordgamers on Facebook](https://www.facebook.com/groups/samfordgamers)")
+                .appendDescription("\n• [@samfordgamers on Twitch](https://www.twitch.tv/samfordgamers)")
         ;
 
         Commons.directMessage(memberUser, embedBuilder.build());

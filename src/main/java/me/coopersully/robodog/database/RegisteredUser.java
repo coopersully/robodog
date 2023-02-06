@@ -8,7 +8,7 @@ import java.util.Objects;
 
 public final class RegisteredUser {
     private final @NotNull String id;
-    private int type = -1;
+    private int type;
     private final @NotNull String name;
     private @Nullable String email;
     private @Nullable String business;

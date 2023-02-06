@@ -7,6 +7,9 @@ import me.coopersully.robodog.events.forms.DenyUser;
 import me.coopersully.robodog.events.forms.GenericButtonPressed;
 import me.coopersully.robodog.events.HearLizardReplyLizard;
 import me.coopersully.robodog.events.JoinGuild;
+import me.coopersully.robodog.events.forms.faculty.AcceptFaculty;
+import me.coopersully.robodog.events.forms.faculty.FacultyFormButton;
+import me.coopersully.robodog.events.forms.faculty.FacultyFormSend;
 import me.coopersully.robodog.events.forms.guest.AcceptGuest;
 import me.coopersully.robodog.events.forms.guest.GuestFormButton;
 import me.coopersully.robodog.events.forms.guest.GuestFormSend;
@@ -98,6 +101,10 @@ public class Robodog {
         jda.addEventListener(new GuestFormButton());
         jda.addEventListener(new GuestFormSend());
         jda.addEventListener(new AcceptGuest());
+
+        jda.addEventListener(new FacultyFormButton());
+        jda.addEventListener(new FacultyFormSend());
+        jda.addEventListener(new AcceptFaculty());
 
         jda.addEventListener(new DenyUser());
 

@@ -1,5 +1,6 @@
 package me.coopersully;
 
+import me.coopersully.robodog.database.SQLiteManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.guild.member.GenericGuildMemberEvent;
@@ -113,11 +114,21 @@ public class Commons {
             case "alumni" -> 1;
             case "faculty" -> 2;
             case "guest" -> 3;
+            default -> throw new RuntimeException("An invalid position name was provided.");
+        };
+    }
+
+    public static String getNameByPosition(int position) {
+        return switch (position) {
+            case 0 -> "student";
+            case 1 -> "alumni";
+            case 2 -> "faculty";
+            case 3 -> "guest";
             default -> throw new RuntimeException("An invalid position id was provided.");
         };
     }
 
-    public static @Nullable Role getGuildRole(@NotNull ButtonInteractionEvent event, @NotNull ResultSet resultSet, String columnLabel) {
+    public static @Nullable Role getGuildRoleByResultSet(@NotNull ButtonInteractionEvent event, @NotNull ResultSet resultSet, String columnLabel) {
         // Retrieve the verified role and grant it to the user
         String roleId;
         Role role;
@@ -130,6 +141,89 @@ public class Commons {
             return null;
         }
         return role;
+    }
+
+    public static @Nullable Role getGuildRoleSilent(@NotNull Guild guild, String columnLabel) {
+        // Retrieve the verified role and grant it to the user
+        String roleId;
+        Role role = null;
+        try {
+            roleId = SQLiteManager.getGuildByID(guild.getId()).getString(columnLabel);
+            role = guild.getRoleById(roleId);
+        } catch (SQLException | NullPointerException | NumberFormatException ignored) {
+        }
+        return role;
+    }
+
+    public static void refreshUserRoles(Guild guild, @NotNull User user) {
+
+        Role unverified = SQLiteManager.getGuildUnverifiedRole(guild);
+        Role verified = SQLiteManager.getGuildVerifiedRole(guild);
+        Role student = SQLiteManager.getGuildStudentRole(guild);
+        Role alumni = SQLiteManager.getGuildAlumniRole(guild);
+        Role faculty = SQLiteManager.getGuildFacultyRole(guild);
+        Role guest = SQLiteManager.getGuildGuestRole(guild);
+
+        int position = -1;
+        try {
+            var resultSet = SQLiteManager.getUserByID(user.getId());
+            position = resultSet.getInt("type");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        if (position == 0) {
+            // If the user is a verified student
+            addRoles(guild, user, verified, student);
+            removeRoles(guild, user, unverified, alumni, faculty, guest);
+        } else if (position == 1) {
+            // If the user is a verified alumni
+            addRoles(guild, user, verified, alumni);
+            removeRoles(guild, user, unverified, student, faculty, guest);
+        } else if (position == 2) {
+            // If the user is a verified faculty member
+            addRoles(guild, user, verified, faculty);
+            removeRoles(guild, user, unverified, student, alumni, guest);
+        } else if (position == 3) {
+            // If the user is a verified guest
+            addRoles(guild, user, verified, guest);
+            removeRoles(guild, user, unverified, student, alumni, faculty);
+        } else if (position == -1) {
+            // If the user is unverified/unregistered
+            addRoles(guild, user, unverified);
+            removeRoles(guild, user, verified, student, alumni, faculty, guest);
+        } else {
+            throw new RuntimeException("Couldn't refresh roles for user with position type " + position);
+        }
+    }
+
+    public static void addRoles(Guild guild, User user, Role @NotNull ... roles) {
+        for (Role role : roles) {
+            if (role != null) guild.addRoleToMember(user, role).queue();
+        }
+    }
+
+    public static void removeRoles(Guild guild, User user, Role @NotNull ... roles) {
+        for (Role role : roles) {
+            if (role != null) guild.removeRoleFromMember(user, role).queue();
+        }
+    }
+
+    public static boolean isButtonEventValid(@NotNull ButtonInteractionEvent event, String shouldContain) {
+        // If the event didn't occur in a guild, ignore it.
+        if (!event.isFromGuild()) return false;
+
+        Guild guild = event.getGuild();
+        assert guild != null;
+
+        Button button = event.getButton();
+
+        // If the button has no identifier, ignore the event.
+        String buttonId = button.getId();
+        if (buttonId == null) return false;
+
+        // Ensure that the event is occurring on the Accept Button
+        return buttonId.contains(shouldContain);
     }
 
 }
