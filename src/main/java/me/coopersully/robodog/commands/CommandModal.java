@@ -41,7 +41,7 @@ public class CommandModal extends ListenerAdapter {
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder
                 .setTitle("Welcome to " + guild.getName() + "!")
-                .setDescription("**Before you continue, we'll need to verify your identity; to do this, click one of the buttons below. **If the buttons don't seem to work, try using the ``/verify`` command. If all else fails, feel free to ask for help by typing in this chat or direct messaging a staff member.")
+                .setDescription("**Before you continue, we'll need to verify your identity; to do this, click one of the buttons below.** If the buttons don't seem to work, feel free to ask for help by typing in this chat or direct messaging a staff member.")
                 .addField("\uD83D\uDC68\u200D\uD83C\uDF93 Samford students and alumni", "If you are a current or former student of Samford University, click the button below titled, \"Samford student\"", false)
                 .addField("\uD83D\uDC68\u200D\uD83C\uDF93 Samford faculty", "If you are a current faculty member at Samford University, click the button below titled, \"Samford faculty\"", false)
                 .addField("\uD83D\uDC68\u200D\uD83D\uDCBC Guests", "If you have never attended Samford University, don't worry; you're still welcome here. Click the button below titled, \"Guest\"", false)
@@ -55,9 +55,8 @@ public class CommandModal extends ListenerAdapter {
                 )
                 .queue();
 
-        Commons.sendOrEdit(event, "Successfully created verification modal.");
+        Commons.sendOrEdit(event, Commons.notifSuccess("Successfully created verification modal."));
         event.getHook().deleteOriginal().queue();
-
     }
 
 }
