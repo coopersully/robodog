@@ -1,5 +1,7 @@
 package me.coopersully.robodog.events.forms.student;
 
+import me.coopersully.Commons;
+import me.coopersully.robodog.database.SQLiteManager;
 import me.coopersully.robodog.events.forms.FormCommons;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -34,6 +36,13 @@ public class StudentFormButton extends ListenerAdapter {
 
         // Ensure the button is a "guest" application
         if (!buttonId.equals("STUDENT")) return;
+
+        // Ensure the user does not duplicate their registration
+        event.deferReply().setEphemeral(true).queue();
+        if (SQLiteManager.isUserRegistered(event.getUser())) {
+            Commons.sendOrEdit(event, "**You're already registered!** You won't be able to register again. If you believe this to be an error, please contact a staff member.");
+            return;
+        }
 
         // Reply to the interaction with the modal
         event.getInteraction().replyModal(verificationForm).queue();
