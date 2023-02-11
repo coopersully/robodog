@@ -13,12 +13,9 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.Date;
-import java.util.TimeZone;
 
-public class CommandLookup extends ListenerAdapter {
+public class CommandProfile extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
@@ -47,25 +44,25 @@ public class CommandLookup extends ListenerAdapter {
             ResultSetMetaData metaData = resultSet.getMetaData();
             int columnCount = metaData.getColumnCount();
 
-            if (columnCount > 0) {
-                while (resultSet.next()) {
-                    for (int i = 1; i <= columnCount; i++) {
-                        var key = metaData.getColumnName(i);
-                        var value = resultSet.getString(i);
-                        if (key.equalsIgnoreCase("seen")) {
-                            embedBuilder
-                                    .setFooter("Date Registered")
-                                    .setTimestamp(Instant.ofEpochMilli( Long.parseLong(value) ));
-                        } else {
-                            embedBuilder.addField(
-                                    metaData.getColumnName(i),
-                                    ((value == null || value.isEmpty()) ? "``N/A``" : "``" + value + "``"),
-                                    !key.equalsIgnoreCase("note")
-                            );
-                        }
+            while (resultSet.next()) {
+                for (int i = 1; i <= columnCount; i++) {
+                    var key = metaData.getColumnName(i);
+                    var value = resultSet.getString(i);
+                    if (key.equalsIgnoreCase("seen")) {
+                        embedBuilder
+                                .setFooter("Date Registered")
+                                .setTimestamp(Instant.ofEpochMilli(Long.parseLong(value)));
+                    } else {
+                        embedBuilder.addField(
+                                metaData.getColumnName(i),
+                                ((value == null || value.isEmpty()) ? "``N/A``" : "``" + value + "``"),
+                                !key.equalsIgnoreCase("note")
+                        );
                     }
                 }
-            } else {
+            }
+
+            if (embedBuilder.getFields().isEmpty()) {
                 embedBuilder.setDescription("No information is known about this user.");
             }
 
