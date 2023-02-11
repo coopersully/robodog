@@ -5,17 +5,14 @@ import me.coopersully.robodog.database.MemberAttendances;
 import me.coopersully.robodog.database.SQLiteManager;
 import me.coopersully.robodog.events.Ready;
 import me.coopersully.robodog.events.forms.DenyUser;
-import me.coopersully.robodog.events.forms.GenericButtonPressed;
+import me.coopersully.robodog.events.forms.FormButtons;
 import me.coopersully.robodog.events.HearLizardReplyLizard;
 import me.coopersully.robodog.events.JoinGuild;
 import me.coopersully.robodog.events.forms.faculty.AcceptFaculty;
-import me.coopersully.robodog.events.forms.faculty.FacultyFormButton;
 import me.coopersully.robodog.events.forms.faculty.FacultyFormSend;
 import me.coopersully.robodog.events.forms.guest.AcceptGuest;
-import me.coopersully.robodog.events.forms.guest.GuestFormButton;
 import me.coopersully.robodog.events.forms.guest.GuestFormSend;
 import me.coopersully.robodog.events.forms.student.AcceptStudent;
-import me.coopersully.robodog.events.forms.student.StudentFormButton;
 import me.coopersully.robodog.events.forms.student.StudentFormSend;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -82,8 +79,6 @@ public class Robodog {
         // Register all event listeners
         jda.addEventListener(new Ready());
 
-        jda.addEventListener(new CommandVerify());
-        jda.addEventListener(new CommandRegister());
         jda.addEventListener(new CommandProfile());
         jda.addEventListener(new CommandModal());
         jda.addEventListener(new CommandIrregularities());
@@ -94,17 +89,14 @@ public class Robodog {
         jda.addEventListener(new MemberAttendances());
         jda.addEventListener(new JoinGuild());
 
-        jda.addEventListener(new GenericButtonPressed());
+        jda.addEventListener(new FormButtons());
 
-        jda.addEventListener(new StudentFormButton());
         jda.addEventListener(new StudentFormSend());
         jda.addEventListener(new AcceptStudent());
 
-        jda.addEventListener(new GuestFormButton());
         jda.addEventListener(new GuestFormSend());
         jda.addEventListener(new AcceptGuest());
 
-        jda.addEventListener(new FacultyFormButton());
         jda.addEventListener(new FacultyFormSend());
         jda.addEventListener(new AcceptFaculty());
 
