@@ -8,6 +8,8 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class CommandPositions extends ListenerAdapter {
 
@@ -27,6 +29,17 @@ public class CommandPositions extends ListenerAdapter {
 
         event.deferReply().setEphemeral(true).queue();
 
+        var subcommand = event.getSubcommandName();
+        assert subcommand != null;
+
+        switch (subcommand) {
+            case "list" -> list(event, guild);
+            case "autofill" -> autofill(event, guild);
+            default -> throw new IllegalStateException("Unexpected value: " + subcommand);
+        }
+    }
+
+    private static void list(SlashCommandInteractionEvent event, @NotNull Guild guild) {
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setTitle(guild.getName() + "'s assigned positions");
 
@@ -51,5 +64,47 @@ public class CommandPositions extends ListenerAdapter {
         embedBuilder.appendDescription("**Guest: ** " + (guest == null ? "``None``" : guest.getAsMention()) + "\n");
 
         Commons.sendOrEdit(event, embedBuilder.build());
+    }
+
+    private static void autofill(@NotNull SlashCommandInteractionEvent event, @NotNull Guild guild) {
+        // Retrieve or create 'faculty' positional role
+        getOrCreateRole(guild, "Faculty", "faculty");
+
+        // Retrieve or create 'alumni' positional role
+        getOrCreateRole(guild, "Alumni", "alumni");
+
+        // Retrieve or create 'student' positional role
+        getOrCreateRole(guild, "Student", "student");
+
+        // Retrieve or create 'guest' positional role
+        getOrCreateRole(guild, "Guest", "guest");
+
+        // Retrieve or create 'verified' positional role
+        getOrCreateRole(guild, "Verified", "verified");
+
+        // Retrieve or create 'unverified' positional role
+        getOrCreateRole(guild, "Unverified", "unverified");
+
+        Commons.sendOrEdit(event, "Automatically filled all positions. Check them with ``/positions``");
+    }
+
+    private static @Nullable Role getRoleByName(@NotNull Guild guild, String name) {
+        var roles = guild.getRolesByName(name, true);
+        if (roles.isEmpty()) return null;
+        return roles.get(0);
+    }
+
+    private static void getOrCreateRole(Guild guild, String roleName, String dbKey) {
+        Role role = SQLiteManager.getGuildRoleByNamespace(guild, dbKey);
+        if (role != null) return;
+
+        role = getRoleByName(guild, roleName.toLowerCase());
+        if (role == null) {
+            role = guild.createRole()
+                    .setName(roleName)
+                    .setPermissions(Permission.EMPTY_PERMISSIONS)
+                    .complete();
+        }
+        SQLiteManager.setGuildPosition(guild.getId(), dbKey, role);
     }
 }

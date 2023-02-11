@@ -84,13 +84,12 @@ public class Robodog {
 
         jda.addEventListener(new CommandVerify());
         jda.addEventListener(new CommandRegister());
-        jda.addEventListener(new CommandLookup());
+        jda.addEventListener(new CommandProfile());
         jda.addEventListener(new CommandModal());
         jda.addEventListener(new CommandIrregularities());
         jda.addEventListener(new CommandNotifyUnverified());
         jda.addEventListener(new CommandPositions());
         jda.addEventListener(new CommandSetPos());
-        jda.addEventListener(new CommandMakePos());
 
         jda.addEventListener(new MemberAttendances());
         jda.addEventListener(new JoinGuild());
@@ -137,7 +136,11 @@ public class Robodog {
         getBranch().upsertCommand("modal", "Send the get-verified embed with the attached modal.").queue();
         getBranch().upsertCommand("irregularities", "Find irregularities and security risks in the server.").queue();
         getBranch().upsertCommand("notify-unverified", "Notify unverified members to verify their identity.").queue();
-        getBranch().upsertCommand("positions", "View all positions and their assigned roles.").queue();
+        getBranch().upsertCommand("positions", "View all positions and their assigned roles.")
+                .addSubcommands(
+                        new SubcommandData("list", "View all currently assigned positions and their roles"),
+                        new SubcommandData("autofill", "Create or assign all positions automatically.")
+                ).queue();
         getBranch().upsertCommand("setpos", "Assign a role to a a position in the server.")
                 .addSubcommands(
                         new SubcommandData("unverified", "The unverified position")
@@ -153,7 +156,6 @@ public class Robodog {
                         new SubcommandData("guest", "The guest position")
                                 .addOption(OptionType.ROLE, "role", "The role to connect")
                 ).queue();
-        getBranch().upsertCommand("makepos", "Create or assign all positions automatically.").queue();
 
         System.out.println("Registering all commands... Done!");
 
