@@ -24,7 +24,7 @@ public class CommandSetPos extends ListenerAdapter {
         if (guild == null) return;
 
         if (!event.getMember().hasPermission(Permission.MANAGE_PERMISSIONS)) {
-            Commons.sendOrEdit(event, ":question: You don't have permission to do that.");
+            Commons.sendOrEdit(event, Commons.notifFail("You don't have permission to do that."));
             return;
         }
 

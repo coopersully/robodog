@@ -60,7 +60,8 @@ public class FormButtons extends ListenerAdapter {
 
         // Ensure the user does not duplicate their registration
         if (SQLiteManager.isUserRegistered(event.getUser())) {
-            Commons.sendOrEdit(event, "**You're already registered!** You won't be able to register again. If you believe this to be an error, please contact a staff member.");
+            event.deferReply().setEphemeral(true).queue();
+            Commons.sendOrEdit(event, Commons.notifFail("**You're already registered** and won't be able to register again. If you believe this to be an error, please contact a staff member."));
             return;
         }
 

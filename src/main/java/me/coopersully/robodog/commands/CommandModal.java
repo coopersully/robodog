@@ -31,7 +31,7 @@ public class CommandModal extends ListenerAdapter {
         if (member == null) return;
 
         if (!member.hasPermission(Permission.ADMINISTRATOR)) {
-            Commons.sendOrEdit(event, ":exclamation: You don't have permission to do that.");
+            Commons.sendOrEdit(event, Commons.notifFail("You don't have permission to do that."));
             return;
         }
 

@@ -26,7 +26,7 @@ public class CommandProfile extends ListenerAdapter {
 
         Member member = event.getMember();
         if (!member.hasPermission(Permission.ADMINISTRATOR)) {
-            Commons.sendOrEdit(event, ":exclamation: You don't have permission to do that.");
+            Commons.sendOrEdit(event, Commons.notifFail("You don't have permission to do that."));
             return;
         }
 
@@ -79,7 +79,8 @@ public class CommandProfile extends ListenerAdapter {
             }
 
             if (embedBuilder.getFields().isEmpty()) {
-                embedBuilder.setDescription("No information is known about this user.");
+                Commons.sendOrEdit(event, Commons.notifFail("No information is known about this user."));
+                return;
             }
 
             embedBuilder.setTitle(user.getName() + "'s verification profile").setThumbnail(user.getEffectiveAvatarUrl());

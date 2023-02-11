@@ -49,7 +49,7 @@ public class AcceptStudent extends ListenerAdapter {
         try {
             member = guild.retrieveMemberById(buttonId).complete();
         } catch (ErrorResponseException e) {
-            Commons.sendOrEdit(event, ":question: That user no longer exists in this server.");
+            Commons.sendOrEdit(event, Commons.notifFail("This user no longer exists in this server."));
             return;
         }
 
@@ -76,7 +76,7 @@ public class AcceptStudent extends ListenerAdapter {
         // Update user's roles
         Commons.refreshUserRoles(guild, event.getUser());
 
-        Commons.sendOrEdit(event, ":white_check_mark: Successfully verified " + member.getAsMention());
+        Commons.sendOrEdit(event, Commons.notifSuccess("Successfully granted ``Student`` access to " + member.getAsMention()));
 
         // Alert the user that they've been verified inthe server
         EmbedBuilder embedBuilder = new EmbedBuilder();

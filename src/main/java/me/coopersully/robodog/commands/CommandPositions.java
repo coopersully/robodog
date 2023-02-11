@@ -11,6 +11,8 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.*;
+
 public class CommandPositions extends ListenerAdapter {
 
     @Override
@@ -23,7 +25,7 @@ public class CommandPositions extends ListenerAdapter {
         if (guild == null) return;
 
         if (!event.getMember().hasPermission(Permission.MANAGE_PERMISSIONS)) {
-            Commons.sendOrEdit(event, ":question: You don't have permission to do that.");
+            Commons.sendOrEdit(event, Commons.notifFail("You don't have permission to do that."));
             return;
         }
 
@@ -41,7 +43,9 @@ public class CommandPositions extends ListenerAdapter {
 
     private static void list(SlashCommandInteractionEvent event, @NotNull Guild guild) {
         EmbedBuilder embedBuilder = new EmbedBuilder();
-        embedBuilder.setTitle(guild.getName() + "'s assigned positions");
+        embedBuilder
+                .setColor(Color.GREEN)
+                .setTitle(guild.getName() + "'s assigned positions");
 
         Role unverified, verified, student, alumni, faculty, guest;
 
@@ -85,7 +89,7 @@ public class CommandPositions extends ListenerAdapter {
         // Retrieve or create 'unverified' positional role
         getOrCreateRole(guild, "Unverified", "unverified");
 
-        Commons.sendOrEdit(event, "Automatically filled all positions. Check them with ``/positions``");
+        Commons.sendOrEdit(event, Commons.notifSuccess("Automatically filled all positions. Check them with ``/positions list``"));
     }
 
     private static @Nullable Role getRoleByName(@NotNull Guild guild, String name) {

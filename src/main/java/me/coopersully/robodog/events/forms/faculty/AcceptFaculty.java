@@ -45,7 +45,7 @@ public class AcceptFaculty extends ListenerAdapter {
         try {
             member = guild.retrieveMemberById(buttonId).complete();
         } catch (ErrorResponseException e) {
-            Commons.sendOrEdit(event, ":question: That user no longer exists in this server.");
+            Commons.sendOrEdit(event, Commons.notifFail("This user no longer exists in this server."));
             return;
         }
 
@@ -66,7 +66,7 @@ public class AcceptFaculty extends ListenerAdapter {
         Commons.refreshUserRoles(guild, event.getUser());
 
         // Notify the admin that it was successful
-        Commons.sendOrEdit(event, ":white_check_mark: Successfully granted access to " + member.getAsMention());
+        Commons.sendOrEdit(event, Commons.notifSuccess("Successfully granted ``Faculty`` access to " + member.getAsMention()));
 
         // Alert the user that they've been verified in the server.
         EmbedBuilder embedBuilder = new EmbedBuilder();

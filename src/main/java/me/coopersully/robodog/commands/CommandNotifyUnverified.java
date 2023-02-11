@@ -26,7 +26,7 @@ public class CommandNotifyUnverified extends ListenerAdapter {
         if (guild == null) return;
 
         if (!event.getMember().hasPermission(Permission.MANAGE_PERMISSIONS)) {
-            Commons.sendOrEdit(event, ":question: You don't have permission to do that.");
+            Commons.sendOrEdit(event, Commons.notifFail("You don't have permission to do that."));
             return;
         }
 
@@ -34,12 +34,12 @@ public class CommandNotifyUnverified extends ListenerAdapter {
 
         Role unverified = SQLiteManager.getGuildUnverifiedRole(guild);
         if (unverified == null) {
-            Commons.sendOrEdit(event, "There is not an unverified role assigned in this guild.");
+            Commons.sendOrEdit(event, Commons.notifFail("There is not an unverified role assigned in this guild."));
             return;
         }
 
         guild.findMembersWithRoles(unverified).onSuccess((members -> notifyMembers(members, event)));
-        Commons.sendOrEdit(event, "No unverified members were found.");
+        Commons.sendOrEdit(event, Commons.notifSuccess("Task was successfully completed, but no unverified members were found."));
     }
 
     private void notifyMembers(@NotNull List<Member> members, SlashCommandInteractionEvent event) {
@@ -58,7 +58,7 @@ public class CommandNotifyUnverified extends ListenerAdapter {
         for (Member member : members) {
             System.out.println("Notifying " + member.getEffectiveName() + " to verify themselves in " + guild.getName());
             Commons.directMessage(member.getUser(), embedBuilder.build());
-            Commons.sendOrEdit(event, "Successfully notified **" + members.size() + "** unverified members.");
+            Commons.sendOrEdit(event, Commons.notifSuccess("Successfully notified **" + members.size() + "** unverified members."));
         }
     }
 

@@ -13,6 +13,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -224,6 +225,22 @@ public class Commons {
 
         // Ensure that the event is occurring on the Accept Button
         return buttonId.contains(shouldContain);
+    }
+
+    public static @NotNull MessageEmbed notifSuccess(String body) {
+        EmbedBuilder embedBuilder = new EmbedBuilder();
+        embedBuilder
+                .setColor(Color.GREEN)
+                .setDescription(":white_check_mark: " + body);
+        return embedBuilder.build();
+    }
+
+    public static @NotNull MessageEmbed notifFail(String body) {
+        EmbedBuilder embedBuilder = new EmbedBuilder();
+        embedBuilder
+                .setColor(Color.RED)
+                .setDescription(":anger: " + body);
+        return embedBuilder.build();
     }
 
 }
