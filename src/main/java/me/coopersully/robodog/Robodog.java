@@ -19,6 +19,7 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
@@ -81,7 +82,7 @@ public class Robodog {
 
         jda.addEventListener(new CommandProfile());
         jda.addEventListener(new CommandModal());
-        jda.addEventListener(new CommandIrregularities());
+        jda.addEventListener(new CommandFixPos());
         jda.addEventListener(new CommandNotifyUnverified());
         jda.addEventListener(new CommandPositions());
         jda.addEventListener(new CommandSetPos());
@@ -126,7 +127,15 @@ public class Robodog {
                 .addOption(OptionType.USER, "user", "The user to query", true)
                 .queue();
         getBranch().upsertCommand("modal", "Send the get-verified embed with the attached modal.").queue();
-        getBranch().upsertCommand("irregularities", "Find irregularities and security risks in the server.").queue();
+        getBranch().upsertCommand("fixpos", "Identify and correct role assignments for all positions.")
+                .addOptions(
+                        new OptionData(OptionType.BOOLEAN, "unverified", "Should this position be checked & updated?", false),
+                        new OptionData(OptionType.BOOLEAN, "verified", "Should this position be checked & updated?", false),
+                        new OptionData(OptionType.BOOLEAN, "student", "Should this position be checked & updated?", false),
+                        new OptionData(OptionType.BOOLEAN, "alumni", "Should this position be checked & updated?", false),
+                        new OptionData(OptionType.BOOLEAN, "faculty", "Should this position be checked & updated?", false),
+                        new OptionData(OptionType.BOOLEAN, "guest", "Should this position be checked & updated?", false)
+                ).queue();
         getBranch().upsertCommand("notify-unverified", "Notify unverified members to verify their identity.").queue();
         getBranch().upsertCommand("positions", "View all positions and their assigned roles.")
                 .addSubcommands(

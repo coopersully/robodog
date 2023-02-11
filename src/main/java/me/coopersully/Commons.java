@@ -157,13 +157,24 @@ public class Commons {
     }
 
     public static void refreshUserRoles(Guild guild, @NotNull User user) {
+        refreshUserRoles(guild, user, true, true, true, true, true, true);
+    }
 
-        Role unverified = SQLiteManager.getGuildUnverifiedRole(guild);
-        Role verified = SQLiteManager.getGuildVerifiedRole(guild);
-        Role student = SQLiteManager.getGuildStudentRole(guild);
-        Role alumni = SQLiteManager.getGuildAlumniRole(guild);
-        Role faculty = SQLiteManager.getGuildFacultyRole(guild);
-        Role guest = SQLiteManager.getGuildGuestRole(guild);
+    public static void refreshUserRoles(Guild guild, @NotNull User user, boolean c_unverified, boolean c_verified, boolean c_student, boolean c_alumni, boolean c_faculty, boolean c_guest) {
+
+        Role unverified = null;
+        Role verified = null;
+        Role student = null;
+        Role alumni = null;
+        Role faculty = null;
+        Role guest = null;
+
+        if (c_unverified) unverified = SQLiteManager.getGuildUnverifiedRole(guild);
+        if (c_verified) verified = SQLiteManager.getGuildVerifiedRole(guild);
+        if (c_student) student = SQLiteManager.getGuildStudentRole(guild);
+        if (c_alumni) alumni = SQLiteManager.getGuildAlumniRole(guild);
+        if (c_faculty) faculty = SQLiteManager.getGuildFacultyRole(guild);
+        if (c_guest) guest = SQLiteManager.getGuildGuestRole(guild);
 
         int position = -1;
         try {
