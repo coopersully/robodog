@@ -40,6 +40,7 @@ public class FormCommons {
             .build();
 
     public static final Map<String, String> cypher = Map.ofEntries(
+            Map.entry("id", "User ID"),
             Map.entry(name.getId(), name.getLabel()),
             Map.entry(field.getId(), field.getLabel()),
             Map.entry(email.getId(), email.getLabel()),

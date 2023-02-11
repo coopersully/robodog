@@ -2,6 +2,7 @@ package me.coopersully.robodog.commands;
 
 import me.coopersully.Commons;
 import me.coopersully.robodog.database.SQLiteManager;
+import me.coopersully.robodog.events.forms.FormCommons;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -29,6 +30,8 @@ public class CommandProfile extends ListenerAdapter {
             return;
         }
 
+        event.deferReply().setEphemeral(true).queue();
+
         // Ensure name is valid
         OptionMapping mapUser = event.getOption("user");
         if (mapUser == null) {
@@ -52,11 +55,24 @@ public class CommandProfile extends ListenerAdapter {
                         embedBuilder
                                 .setFooter("Date Registered")
                                 .setTimestamp(Instant.ofEpochMilli(Long.parseLong(value)));
+                    }
+                    else if (key.equalsIgnoreCase("type")) {
+                        embedBuilder.addField(
+                                "Position",
+                                "``" + Commons.getNameByPosition(Integer.parseInt(value)).toUpperCase() + "``",
+                                true
+                        );
+                    } else if (key.equalsIgnoreCase("note")) {
+                        embedBuilder.addField(
+                                "Notes",
+                                ((value == null || value.isEmpty()) ? "```N/A```" : "```" + value + "```"),
+                                false
+                        );
                     } else {
                         embedBuilder.addField(
-                                metaData.getColumnName(i),
+                                FormCommons.cypher.get(key),
                                 ((value == null || value.isEmpty()) ? "``N/A``" : "``" + value + "``"),
-                                !key.equalsIgnoreCase("note")
+                                true
                         );
                     }
                 }
@@ -67,14 +83,10 @@ public class CommandProfile extends ListenerAdapter {
             }
 
             embedBuilder.setTitle(user.getName() + "'s verification profile").setThumbnail(user.getEffectiveAvatarUrl());
-
-            Commons.sendOrEdit(event, "");
             Commons.sendOrEdit(event, embedBuilder.build());
-            return;
         } catch (SQLException ignored) {
+            Commons.sendOrEdit(event, "Something went wrong- please contact an administrator and/or the bot developer.");
         }
-
-        Commons.sendOrEdit(event, "That user doesn't seem to be registered quite yet.");
     }
 
 }

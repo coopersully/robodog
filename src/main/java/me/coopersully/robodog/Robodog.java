@@ -157,8 +157,7 @@ public class Robodog {
                                 .addOption(OptionType.ROLE, "role", "The role to connect")
                 ).queue();
 
-        System.out.println("Registering all commands... Done!");
-
+        System.out.println("Registering all commands... Enqueued!");
     }
 
 }
