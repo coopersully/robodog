@@ -1,6 +1,6 @@
 package me.coopersully.robodog.database;
 
-import me.coopersully.Commons;
+import me.coopersully.robodog.Commons;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

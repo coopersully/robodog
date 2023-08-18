@@ -1,12 +1,10 @@
 package me.coopersully.robodog.events.forms.student;
 
-import me.coopersully.Commons;
+import me.coopersully.robodog.Commons;
 import me.coopersully.robodog.database.RegisteredUser;
-import me.coopersully.robodog.database.SQLiteManager;
 import me.coopersully.robodog.events.forms.FormCommons;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -15,8 +13,6 @@ import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.Instant;
 
 public class StudentFormSend extends ListenerAdapter {

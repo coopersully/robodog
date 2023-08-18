@@ -1,6 +1,6 @@
 package me.coopersully.robodog.events.forms;
 
-import me.coopersully.Commons;
+import me.coopersully.robodog.Commons;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.exceptions.HierarchyException;

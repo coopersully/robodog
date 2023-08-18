@@ -1,6 +1,6 @@
 package me.coopersully.robodog.commands;
 
-import me.coopersully.Commons;
+import me.coopersully.robodog.Commons;
 import me.coopersully.robodog.database.SQLiteManager;
 import me.coopersully.robodog.events.forms.FormCommons;
 import net.dv8tion.jda.api.EmbedBuilder;

@@ -1,6 +1,6 @@
 package me.coopersully.robodog.commands;
 
-import me.coopersully.Commons;
+import me.coopersully.robodog.Commons;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;

@@ -22,6 +22,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.jetbrains.annotations.NotNull;
 
@@ -65,8 +66,9 @@ public class Robodog {
         try {
             jda = JDABuilder
                     .createDefault(config.token)
-                    .enableIntents(GatewayIntent.GUILD_MEMBERS)
+                    .setChunkingFilter(ChunkingFilter.ALL)
                     .setMemberCachePolicy(MemberCachePolicy.ALL)
+                    .enableIntents(GatewayIntent.GUILD_MEMBERS)
                     .build();
         } catch (LoginException e) {
             System.out.println("Failed to log-in using the bot-token in config.yml. Please check the token and try again.");

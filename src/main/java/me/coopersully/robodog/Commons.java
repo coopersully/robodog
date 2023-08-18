@@ -1,4 +1,4 @@
-package me.coopersully;
+package me.coopersully.robodog;
 
 import me.coopersully.robodog.database.SQLiteManager;
 import net.dv8tion.jda.api.EmbedBuilder;

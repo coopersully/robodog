@@ -1,6 +1,6 @@
 package me.coopersully.robodog.commands;
 
-import me.coopersully.Commons;
+import me.coopersully.robodog.Commons;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -52,11 +52,14 @@ public class CommandFixPos extends ListenerAdapter {
         Guild guild = event.getGuild();
         assert guild != null;
 
-        for (var member : members) {
+        int totalMembers = members.size();
+        for (int i = 0; i < members.size(); i++) {
+            Member member = members.get(i);
+            Commons.sendOrEdit(event, "[" + i + "/" + totalMembers + "]: Updating " + member.getAsMention() + "'s positional roles...");
             Commons.refreshUserRoles(guild, member.getUser(), c_unverified, c_verified, c_student, c_alumni, c_faculty, c_guest);
         }
 
-        Commons.sendOrEdit(event, Commons.notifSuccess("Successfully fixed role assignments for the given positions."));
+        Commons.sendOrEdit(event, Commons.notifSuccess("Successfully fixed role assignments for the given positions in " + totalMembers + " members."));
     }
 
 }

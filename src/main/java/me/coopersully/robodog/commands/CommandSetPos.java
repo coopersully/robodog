@@ -1,16 +1,13 @@
 package me.coopersully.robodog.commands;
 
-import me.coopersully.Commons;
+import me.coopersully.robodog.Commons;
 import me.coopersully.robodog.database.SQLiteManager;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-
-import java.sql.SQLException;
 
 public class CommandSetPos extends ListenerAdapter {
 

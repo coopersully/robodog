@@ -1,6 +1,6 @@
 package me.coopersully.robodog.database;
 
-import me.coopersully.Commons;
+import me.coopersully.robodog.Commons;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;

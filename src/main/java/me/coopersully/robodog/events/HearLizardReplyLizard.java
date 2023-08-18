@@ -1,6 +1,6 @@
 package me.coopersully.robodog.events;
 
-import me.coopersully.Commons;
+import me.coopersully.robodog.Commons;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
